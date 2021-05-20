@@ -14,6 +14,65 @@ from utils.ols import OLS_pytorch
 from utils.ols import vectorized_correlation
 
 
+def build_argparser() -> argparse:
+    """ Build the args parser
+
+    :return:
+        argparse.ArgumentParser
+    """
+    parser = argparse.ArgumentParser(description='Encoding model analysis for Algonauts 2021')
+    parser.add_argument('-rd', '--result_dir',
+                        help='saves predicted fMRI activity',
+                        default='./results',
+                        type=str)
+    parser.add_argument('-ad', '--activation_dir',
+                        help='directory containing DNN activations',
+                        default='./features/',
+                        type=str)
+    parser.add_argument('-model', '--model',
+                        help='model name under which predicted fMRI activity will be saved',
+                        default='alexnet_devkit',
+                        type=str)
+    parser.add_argument('-l', '--layer',
+                        help='layer from which activations will be used to train and predict fMRI activity',
+                        default='layer_5',
+                        type=str)
+    parser.add_argument('-sub', '--sub',
+                        help='subject number from which real fMRI data will be used',
+                        default=4,
+                        type=int)
+    parser.add_argument('-r', '--roi',
+                        help='brain region, from which real fMRI data will be used',
+                        default='EBA',
+                        type=str)
+    parser.add_argument('-m', '--mode',
+                        help='test or val, val returns mean correlation by using 10% of training data for validation',
+                        default='val',
+                        type=str)
+    parser.add_argument('-fd', '--fmri_dir',
+                        help='directory containing fMRI activity',
+                        default='./participants_data_v2021',
+                        type=str)
+    parser.add_argument('-v', '--visualize',
+                        help='visualize whole brain results in MNI space or not',
+                        default=True,
+                        type=bool)
+    parser.add_argument('-b', '--batch_size',
+                        help=' number of voxel to fit at one time in case of memory constraints',
+                        default=1000,
+                        type=int)
+    parser.add_argument('-ft', '--features_type',
+                        help='Type of feature representation',
+                        default='pca_100',
+                        type=str)
+    parser.add_argument('-s', '--solver',
+                        help='Type of solver to use (sklearn_lr or ols)',
+                        default='sklearn_lr',
+                        type=str)
+
+    return parser
+
+
 def get_activations(activations_dir: str, layer: str) -> Tuple[np.array, np.array]:
     """This function loads neural network features/activations (preprocessed using PCA) into a
     numpy array according to a given layer.
@@ -131,7 +190,7 @@ def main(args):
     else:
         track = "mini_track"
 
-    activation_dir = os.path.join(args.activation_dir, features_type)
+    activation_dir = os.path.join(args.activation_dir, model, features_type)
     fmri_dir = os.path.join(args.fmri_dir, track)
 
     sub_fmri_dir = os.path.join(fmri_dir, sub)
@@ -207,54 +266,4 @@ def main(args):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='Encoding model analysis for Algonauts 2021')
-    parser.add_argument('-rd', '--result_dir',
-                        help='saves predicted fMRI activity',
-                        default='./results',
-                        type=str)
-    parser.add_argument('-ad', '--activation_dir',
-                        help='directory containing DNN activations',
-                        default='./alexnet/',
-                        type=str)
-    parser.add_argument('-model', '--model',
-                        help='model name under which predicted fMRI activity will be saved',
-                        default='alexnet_devkit',
-                        type=str)
-    parser.add_argument('-l', '--layer',
-                        help='layer from which activations will be used to train and predict fMRI activity',
-                        default='layer_5',
-                        type=str)
-    parser.add_argument('-sub', '--sub',
-                        help='subject number from which real fMRI data will be used',
-                        default=4,
-                        type=int)
-    parser.add_argument('-r', '--roi',
-                        help='brain region, from which real fMRI data will be used',
-                        default='EBA',
-                        type=str)
-    parser.add_argument('-m', '--mode',
-                        help='test or val, val returns mean correlation by using 10% of training data for validation',
-                        default='val',
-                        type=str)
-    parser.add_argument('-fd', '--fmri_dir',
-                        help='directory containing fMRI activity',
-                        default='./participants_data_v2021',
-                        type=str)
-    parser.add_argument('-v', '--visualize',
-                        help='visualize whole brain results in MNI space or not',
-                        default=True,
-                        type=bool)
-    parser.add_argument('-b', '--batch_size',
-                        help=' number of voxel to fit at one time in case of memory constraints',
-                        default=1000,
-                        type=int)
-    parser.add_argument('-ft', '--features_type',
-                        help='Type of feature representation',
-                        default='pca_100',
-                        type=str)
-    parser.add_argument('-s', '--solver',
-                        help='Type of solver to use (sklearn_lr or ols)',
-                        default='sklearn_lr',
-                        type=str)
-
-    main(parser.parse_args())
+    main(build_argparser().parse_args())
