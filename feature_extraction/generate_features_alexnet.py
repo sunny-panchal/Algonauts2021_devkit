@@ -8,7 +8,6 @@ import glob
 import numpy as np
 import os
 import random
-import time
 import urllib
 from tqdm import tqdm
 from typing import List
@@ -161,7 +160,6 @@ def do_PCA_and_save(activations_dir: str, n_components: int):
         x_train = x[:1000, :]
         x_test = x[1000:, :]
 
-        start_time = time.time()
         x_test = StandardScaler().fit_transform(x_test)
         x_train = StandardScaler().fit_transform(x_train)
         ipca = PCA(n_components=n_components)  # , batch_size=20)
