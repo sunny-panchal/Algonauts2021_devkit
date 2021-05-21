@@ -73,14 +73,12 @@ def build_argparser() -> argparse:
     return parser
 
 
-def get_activations(activations_dir: str, layer: str) -> Tuple[np.array, np.array]:
+def get_activations(activations_dir: str) -> Tuple[np.array, np.array]:
     """This function loads neural network features/activations (preprocessed using PCA) into a
     numpy array according to a given layer.
 
     :param activations_dir:
         Path to PCA processed Neural Network features
-    :param layer:
-        Which layer of the neural network to load
 
     :return train_activations:
         matrix of dimensions #train_vids x #pca_components
@@ -90,8 +88,8 @@ def get_activations(activations_dir: str, layer: str) -> Tuple[np.array, np.arra
         containing activations of test videos
     """
 
-    train_file = os.path.join(activations_dir, f"train_{layer}.npy")
-    test_file = os.path.join(activations_dir, f"test_{layer}.npy")
+    train_file = os.path.join(activations_dir, "train.npy")
+    test_file = os.path.join(activations_dir, "test.npy")
 
     train_activations = np.load(train_file)
     test_activations = np.load(test_file)
@@ -190,7 +188,7 @@ def main(args):
     else:
         track = "mini_track"
 
-    activation_dir = os.path.join(args.activation_dir, model, features_type)
+    activation_dir = os.path.join(args.activation_dir, model, layer, features_type)
     fmri_dir = os.path.join(args.fmri_dir, track)
 
     sub_fmri_dir = os.path.join(fmri_dir, sub)
@@ -200,7 +198,7 @@ def main(args):
 
     print("ROi is : ", ROI)
 
-    train_activations, test_activations = get_activations(activation_dir, layer)
+    train_activations, test_activations = get_activations(activation_dir)
     if track == "full_track":
         fmri_train_all, voxel_mask = get_fmri(sub_fmri_dir, ROI)
     else:
